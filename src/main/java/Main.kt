@@ -1,19 +1,16 @@
+import actions.GiveDefinitionAction
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory
+import java.io.File
 
-val botUsername = System.getenv("botname")
-val botToken = System.getenv("token")
 
 fun main(args: Array<String>) {
 
-    val session = SlackSessionFactory.createWebSocketSlackSession(botToken)
+    val session = SlackSessionFactory.createWebSocketSlackSession(Data.botToken)
+    val dico = File(Thread.currentThread().contextClassLoader.getResource("dico.csv").toURI())
+
     session.connect()
+    Data.addToMap(dico)
+    Data.botId = session.users.find { u -> u.userName.equals( Data.botUsername , ignoreCase = true) }?.id ?: ""
 
-    session.addMessagePostedListener { posted, slackSession ->
-
-        var newMessage = ""
-
-        if(posted.sender.userName != botUsername)
-            slackSession.sendMessage(posted.channel, newMessage, null)
-    }
-
+    session.addMessagePostedListener( GiveDefinitionAction() )
 }
