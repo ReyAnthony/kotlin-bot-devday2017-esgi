@@ -2,7 +2,7 @@ import java.io.File
 
 object Data {
 
-    val dictionnary: MutableMap<String, String> = mutableMapOf()
+    val dictionary: MutableMap<String, String> = mutableMapOf()
 
     fun addToMap(file: File){
 
@@ -12,12 +12,12 @@ object Data {
                 val key = words[0]
                 val def = words[1]
 
-                dictionnary.put(key, def)
+            dictionary[key] = def
         }
     }
 
-    val botUsername = System.getenv("botname")
-    val botToken = System.getenv("token")
+    val botUsername: String = System.getenv("botname")
+    val botToken: String = System.getenv("token")
     var botId = ""
 
     fun atBot() = "<@${Data.botId}>"

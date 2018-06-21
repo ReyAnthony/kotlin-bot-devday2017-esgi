@@ -2,31 +2,30 @@ package actions
 
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted
 
-fun Map<String, String>.getIgnoreCase(searchedKey: String) : String? {
-
-    val aKey = this.keys.find { it -> searchedKey.equals(it, ignoreCase = true) }
-    return this[aKey]
-}
-
 class GiveDefinitionAction : Action() {
 
     override fun eventImpl(posted: SlackMessagePosted) : String {
 
-        val newMessage = getMessageFromInput(posted)
-        return newMessage
+        return getMessageFromInput(posted)
     }
 
     private fun getMessageFromInput(posted: SlackMessagePosted) : String{
 
         var newMessage = ""
 
-        if(posted.messageContent.contains(Data.atBot(), ignoreCase = true)) {
+        if(botIsMentioned(posted)) {
 
-            val words = posted.messageContent.replace(Data.atBot(), "").trim().split(" ").filter { w -> !w.equals("") }
-            if(words.size > 0){
+            val words =
+                    posted.messageContent
+                        .replace(Data.atBot(), "")
+                        .trim()
+                        .split(" ")
+                        .filter { w -> w != "" }
+
+            if(words.isNotEmpty()){
 
                 for (word in words){
-                    Data.dictionnary.getIgnoreCase(word.trim())?.let {
+                    Data.dictionary.getIgnoreCase(word.trim())?.let {
                         newMessage += "$word => $it \n"
                     }
                 }
@@ -41,4 +40,15 @@ class GiveDefinitionAction : Action() {
         }
         return newMessage
     }
+
+    private fun botIsMentioned(posted: SlackMessagePosted) : Boolean =
+            posted.messageContent.contains(Data.atBot(), ignoreCase = true)
+
+    //extension method
+    private fun Map<String, String>.getIgnoreCase(searchedKey: String) : String? {
+
+        val aKey = this.keys.find { it -> searchedKey.equals(it, ignoreCase = true) }
+        return this[aKey]
+    }
+
 }
